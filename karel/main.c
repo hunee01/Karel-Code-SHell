@@ -11,8 +11,7 @@
 * and an hour of C experience.
 */
 
-int main()
-{
+int main() {
     #ifdef _WIN32
         printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
     #elif _WIN64
@@ -22,37 +21,56 @@ int main()
     #elif __APPLE__
         printf("Bark!\n");
     #endif
-
+    
     char input[1024];
     char cmd[1024];
     char cwd[1024];
     int pos;
     char hostname[1024];
-    char *VERSION = "0.1-beta";
+    char *VERSION = "0.2-beta";
     gethostname(hostname, sizeof(hostname));
     char *USER = getenv("USER");
-    int disp = 0;
     int mode = 0777;
     
+    //int disp = 0;
+
     // MAIN LOOP
-    while (1)
-    {
+    while (1) {
+        // READ CONFIGS & DETERMINING FILE SIZE
+        char *config = "config/kcsh.json";
+        FILE *configFile = fopen(config,"r");
+        fseek(configFile, 0, SEEK_END);
+        long fileSize = ftell(configFile);
+        fseek(configFile, 0, SEEK_SET);
+        char *buffer = malloc(fileSize + 1);
+        size_t bytesRead = fread(buffer, 1, fileSize, configFile);
+        buffer[bytesRead] = '\0';
+        fclose(configFile);
+        
+        // SETTING CONFIGS
+        char *ps1 = strstr(buffer, "\"ps1\"") + 8;
+        for (int i = 0; i < sizeof(ps1); i++) {
+            if (ps1[i] == '"') {
+                ps1[i] = '\0';
+            }
+        }
+        
+        char *dispChar = strstr(buffer, "\"disp\"") + 8;
+        int disp = *dispChar - '0';
+
         getcwd(cwd, sizeof(cwd));
         
         // GET USER INPUT
-        switch (disp)
-        {
+        switch (disp) {
             case 0:
-                printf("\n& ");
+                printf("\n%s ",ps1);
                 break;
             case 1:
-                if (cwd != NULL)
-                {
-                    printf("\n%s@%s:%s & ",USER,hostname,cwd);
+                if (cwd != NULL) {
+                    printf("\n%s@%s:%s %s ",USER,hostname,cwd,ps1);
                 }
-                else 
-                {
-                    printf("\n%s@%s:~ & ",USER,hostname);
+                else {
+                    printf("\n%s@%s:~ %s ",USER,hostname,ps1);
                 }
                 break;
         }
@@ -75,14 +93,12 @@ int main()
         cmd[i] = '\0';
         pos = i + 1;
         char *args = input + pos;
-        while (*args == ' ')
-        {
+        while (*args == ' ') {
             args++;
         }
 
         // CMD PROCESSING
-        if (strcmp(cmd, "help") == 0)
-        {
+        if (strcmp(cmd, "help") == 0) {
             // HELP: Print list of commands
             printf("SDD kcsh, version %s",VERSION);
             printf("\nShell commands are defined internally. Type 'help' to see this list.");
@@ -94,117 +110,151 @@ int main()
             printf("\nmkdir [dir]");
             printf("\nwhoami");
             printf("\necho [args]");
-            printf("\ndisp");
+            printf("\nconf [args] [setting] [val]");
             printf("\nexit");
         }
-        else if (strcmp(cmd, "echo") == 0)
-        {
+        else if (strcmp(cmd, "echo") == 0) {
             // ECHO: Print the rest of the input
             printf("%s", args);
         }
-        else if (strcmp(cmd, "pwd") == 0)
-        {
+        else if (strcmp(cmd, "pwd") == 0) {
             // PWD: Print working directory
             printf("%s", cwd);
         }
-        else if (strcmp(cmd, "cd") == 0)
-        {
+        else if (strcmp(cmd, "cd") == 0) {
             // CD: Change directory
-            if (chdir(args) != 0)
-            {
+            if (chdir(args) != 0) {
                 printf("cd: no such file or directory: %s",args);
             }
-            else
-            {
+            else {
                 chdir(args);
             }
         }
-        else if (strcmp(cmd, "rm") == 0)
-        {
+        else if (strcmp(cmd, "rm") == 0) {
             // RM: Remove file
-            if (remove(args) != 0)
-            {
+            if (remove(args) != 0) {
                 printf("rm: no such file or directory: %s",args);
             }
-            else
-            {
+            else {
                 remove(args);
             }
         }
-        else if (strcmp(cmd, "mkdir") == 0)
-        {
+        else if (strcmp(cmd, "mkdir") == 0) {
             // MKDIR: Make directory
-            if (mkdir(args,mode) != 0)
-            {
+            if (mkdir(args,mode) != 0) {
                 printf("mkdir: no such file or directory: %s",args);
             }
-            else
-            {
+            else {
                 mkdir(args,mode);
             }
         }
-        else if (strcmp(cmd, "touch") == 0)
-        {
+        else if (strcmp(cmd, "touch") == 0) {
             // TOUCH: Make file
             FILE *ftmk = fopen(args, "w");
             
-            if (ftmk != 0)
-            {
+            if (ftmk != 0) {
                 fclose(ftmk);
             }
-            else
-            {
+            else {
                 printf("touch: no such file or directory: %s",args);
             }
         }
-        else if (strcmp(cmd, "rd") == 0)
-        {
+        else if (strcmp(cmd, "rd") == 0) {
             // RD: Read and display
             FILE *ftpr = fopen(args, "r");
             
             char ch;
-            if (ftpr != 0)
-            {
-                while ((ch = fgetc(ftpr)) != EOF)
-                {
+            if (ftpr != 0) {
+                while ((ch = fgetc(ftpr)) != EOF) {
                     printf("%c",ch);
                 }
                 fclose(ftpr);
             }
-            else
-            {
+            else {
                 printf("rd: no such file or directory: %s",args);
             }
         }
-        else if (strcmp(cmd, "whoami") == 0)
-        {
+        else if (strcmp(cmd, "whoami") == 0) {
             // WHOAMI: Print current user
             printf("%s", getenv("USER"));
         }
-        else if (strcmp(cmd, "disp") == 0)
-        {
-            // DISP: Display information at line header
-            switch (disp)
-            {
-                case 0:
-                    disp = 1;
-                    break;
-                case 1:
-                    disp = 0;
-                    break;
+        else if (strcmp(cmd, "conf") == 0) {
+            // CONF: Edit configurations
+            char setting[64] = {0};
+            for (int i = 0; i < strlen(args); i++) {
+                if (args[i] == ' ') {
+                    strncpy(setting, args + i + 1, sizeof(setting) - 1);
+                    setting[sizeof(setting) - 1] = '\0';
+                    args[i] = '\0';
+                }
+            }
+            if (strcmp(args,"set") == 0) {
+                char setVal[64] = {0};
+                for (int i = 0; i < strlen(setting); i++) {
+                    if (setting[i] == ' ') {
+                        strncpy(setVal, setting + i + 1, sizeof(setVal) - 1);
+                        setVal[sizeof(setVal) - 1] = '\0';
+                        setting[i] = '\0';
+                    }
+                }
+                
+                // LOOK FOR SETTINGS
+                if (strcmp(setting,"disp") == 0) {
+                    if (*setVal == '0' || *setVal == '1') {
+                        configFile = fopen(config,"r+");
+                        bytesRead = fread(buffer, 1, fileSize, configFile);
+                        buffer[bytesRead] = '\0';
+                        
+                        dispChar = strstr(buffer, "\"disp\"") + 8;
+                        char *dispPtr = strchr(buffer,dispChar[0]);
+                        fseek(configFile,dispPtr - buffer,SEEK_SET);
+                        if (fputc(*setVal,configFile) != EOF) {
+                            fclose(configFile);
+                        }
+                        else {
+                            printf("conf: failed to set configuration: %c",*setVal);
+                        }
+                    }
+                    else {
+                        printf("conf: value for 'disp' must be 0 or 1: %c",*setVal);
+                    }
+                }
+                else if (strcmp(setting,"ps1") == 0) {
+                    if (strlen(setVal) < 8) {
+                        configFile = fopen(config,"r+");
+                        bytesRead = fread(buffer, 1, fileSize, configFile);
+                        buffer[bytesRead] = '\0';
+                        
+                        dispChar = strstr(buffer, "\"ps1\"") + 8;
+                        char *dispPtr = strchr(buffer,dispChar[0]);
+                        fseek(configFile,dispPtr - buffer,SEEK_SET);
+                        if (fputs(strcat(setVal,"\""),configFile) != EOF) {
+                            fclose(configFile);
+                        }
+                        else {
+                            printf("conf: failed to set configuration: %s",setVal);
+                        }
+                    }
+                    else {
+                        printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
+                    }
+                }
+                else {
+                    printf("conf: setting does not exist: %s",setting);
+                }
+            }
+            else {
+                printf("conf: invalid argument: %s",args);
             }
         }
-        else if (strcmp(cmd, "exit") == 0)
-        {
+        else if (strcmp(cmd, "exit") == 0) {
             // EXIT: Exit the loop
             break;
         }
-        else
-        {
+        else {
             // FALLBACK: Print unknown command
             printf("kcsh: %s: command not found",cmd);
         }
     }
-
     return 0;
 }
