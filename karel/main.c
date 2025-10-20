@@ -27,7 +27,7 @@ int main() {
     char cwd[1024];
     int pos;
     char hostname[1024];
-    char *VERSION = "0.2-beta";
+    char *VERSION = "1.1-beta";
     gethostname(hostname, sizeof(hostname));
     char *USER = getenv("USER");
     int mode = 0777;
