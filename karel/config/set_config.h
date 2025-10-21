@@ -10,6 +10,6 @@ void set_ps1(const char *file , const char *key, const char *value, const char d
         return;
     }
     
-    fprintf(conf, "{\n    \"disp\": %c,\n    \"ps1\": \"%s\"\n}\n",disp,value);
+    fprintf(conf, "{\n    \"disp\": %d,\n    \"ps1\": \"%s\"\n}\n",disp,value);
     fclose(conf);
 }
