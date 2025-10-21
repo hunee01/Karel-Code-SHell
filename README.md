@@ -34,7 +34,7 @@ $ clang main.c -o kcsh # if using clang
 ```console
 $ ./kcsh
 ```
-> If your compiler produces an error or warns about missing errors, please make sure you are on a POSIX compatible environment.<br/>
+> If your compiler fails or warns about missing headers, please make sure you are on a POSIX compatible environment.<br/>
 ><br/>
 > On Windows, try using WSL or MinGW, as native 32-bit and 64-bit Windows builds are not supported.
 
