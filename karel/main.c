@@ -5,12 +5,6 @@
 #include <limits.h>
 #include <sys/stat.h>
 
-/* -- Sleep Deprived Dev: Karel-Code SHell --
-* 
-* Originally made in CodeHS, hence the name,
-* and an hour of C experience.
-*/
-
 int main() {
     #ifdef _WIN32
         printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
