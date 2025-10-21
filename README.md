@@ -31,3 +31,5 @@ $ gcc -o kcsh main.c
 ```console
 $ ./kcsh
 ```
+> If your compiler produces an error or warns about missing errors, please make sure you are on a POSIX compatible environment.  
+> On Windows, use WSL or MinGW, as native 32-bit and 64-bit Windows builds are not supported. 
