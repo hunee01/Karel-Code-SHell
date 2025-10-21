@@ -20,8 +20,12 @@ Thanks to [Polecat](https://github.com/polecatttt) for help and inspiration!
 - Standard C headers (no external libraries)
 <br/>
 **Build:**<br/>
-From the root of the downloaded release:<br/>
-```cd karel
-gcc -o kcsh main.c```
+From the root folder of the downloaded release:<br/>
+```console
+$ cd karel
+$ gcc -o kcsh main.c
+```
 **Run:**<br/>
-`./kcsh`
+```console
+$ ./kcsh
+```
