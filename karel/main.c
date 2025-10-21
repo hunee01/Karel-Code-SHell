@@ -11,6 +11,8 @@
 * and an hour of C experience.
 */
 
+
+
 int main() {
     #ifdef _WIN32
         printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
@@ -22,6 +24,8 @@ int main() {
         printf("Bark!\n");
     #endif
     
+    #include "config/set_config.h" // CALL HEADER
+    
     char input[1024];
     char cmd[1024];
     char cwd[1024];
@@ -31,6 +35,7 @@ int main() {
     gethostname(hostname, sizeof(hostname));
     char *USER = getenv("USER");
     int mode = 0777;
+    char *config = "config/kcsh.json";
     
     //int disp = 0;
 
@@ -55,8 +60,8 @@ int main() {
             }
         }
         
-        char *dispChar = strstr(buffer, "\"disp\"") + 8;
-        int disp = *dispChar - '0';
+        char *configChar = strstr(buffer, "\"disp\"") + 8;
+        int disp = *configChar - '0';
 
         getcwd(cwd, sizeof(cwd));
         
@@ -205,9 +210,9 @@ int main() {
                         bytesRead = fread(buffer, 1, fileSize, configFile);
                         buffer[bytesRead] = '\0';
                         
-                        dispChar = strstr(buffer, "\"disp\"") + 8;
-                        char *dispPtr = strchr(buffer,dispChar[0]);
-                        fseek(configFile,dispPtr - buffer,SEEK_SET);
+                        configChar = strstr(buffer, "\"disp\"") + 8;
+                        char *configPtr = strchr(buffer,configChar[0]);
+                        fseek(configFile,configPtr - buffer,SEEK_SET);
                         if (fputc(*setVal,configFile) != EOF) {
                             fclose(configFile);
                         }
@@ -221,19 +226,7 @@ int main() {
                 }
                 else if (strcmp(setting,"ps1") == 0) {
                     if (strlen(setVal) < 8) {
-                        configFile = fopen(config,"r+");
-                        bytesRead = fread(buffer, 1, fileSize, configFile);
-                        buffer[bytesRead] = '\0';
-                        
-                        dispChar = strstr(buffer, "\"ps1\"") + 8;
-                        char *dispPtr = strchr(buffer,dispChar[0]);
-                        fseek(configFile,dispPtr - buffer,SEEK_SET);
-                        if (fputs(strcat(setVal,"\""),configFile) != EOF) {
-                            fclose(configFile);
-                        }
-                        else {
-                            printf("conf: failed to set configuration: %s",setVal);
-                        }
+                        set_ps1(config, "ps1", setVal);
                     }
                     else {
                         printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
