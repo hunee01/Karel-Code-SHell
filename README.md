@@ -18,7 +18,9 @@ Thanks to [Polecat](https://github.com/polecatttt) for help and inspiration!
 - C compiler (e.g. gcc, clang, or tcc)
 - POSIX Environment (Linux, MacOS)
 - Standard C headers (no external libraries)
-<br/>
+
+<!-- -->
+
 **Build:**<br/>
 From the root folder of the downloaded release:<br/>
 ```console
