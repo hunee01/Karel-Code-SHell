@@ -11,8 +11,6 @@
 * and an hour of C experience.
 */
 
-
-
 int main() {
     #ifdef _WIN32
         printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
@@ -61,7 +59,7 @@ int main() {
         
         char *configChar = strstr(buffer, "\"disp\"") + 8;
         int disp = *configChar - '0';
-
+        
         getcwd(cwd, sizeof(cwd));
         
         // GET USER INPUT
@@ -225,7 +223,7 @@ int main() {
                 }
                 else if (strcmp(setting,"ps1") == 0) {
                     if (strlen(setVal) < 8) {
-                        set_ps1(config, "ps1", setVal);
+                        set_ps1(config, "ps1", setVal, disp);
                     }
                     else {
                         printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
@@ -233,6 +231,18 @@ int main() {
                 }
                 else {
                     printf("conf: setting does not exist: %s",setting);
+                }
+            }
+            else if (strcmp(args,"prt") == 0) {
+                if (strcmp(setting,"disp") == 0) {
+                    printf("%d",disp);
+                }
+                else if (strcmp(setting,"ps1") == 0) {
+                    printf("%s",ps1);
+                }
+                else
+                {
+                    printf("conf: invalid argument: %s",setting);
                 }
             }
             else {
