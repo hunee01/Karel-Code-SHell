@@ -42,7 +42,6 @@ int main() {
     // MAIN LOOP
     while (1) {
         // READ CONFIGS & DETERMINING FILE SIZE
-        char *config = "config/kcsh.json";
         FILE *configFile = fopen(config,"r");
         fseek(configFile, 0, SEEK_END);
         long fileSize = ftell(configFile);
