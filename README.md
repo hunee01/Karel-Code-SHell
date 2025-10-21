@@ -10,3 +10,18 @@ This is a beginner project, and I'll be glad to increase my skills through impro
 <br/>
 <sub>A 'mens et manus' project</sub><br/>
 Thanks to [Polecat](https://github.com/polecatttt) for help and inspiration!
+
+---
+
+# Installation
+**Requirements:**<br/>
+- C compiler (e.g. gcc, clang, or tcc)
+- POSIX Environment (Linux, MacOS)
+- Standard C headers (no external libraries)
+<br/>
+**Build:**<br/>
+From the root of the downloaded release:<br/>
+```cd karel
+gcc -o kcsh main.c```
+**Run:**<br/>
+`./kcsh`
