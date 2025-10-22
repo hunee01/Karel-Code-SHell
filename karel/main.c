@@ -16,57 +16,37 @@ int main() {
         printf("Bark!\n");
     #endif
     
-    #include "config/set_config.h" // CALL HEADER
+    #include "config/set_config.h" // CALL CONFIG HEADER
+    #include "src/command.h" // CALL COMMAND HEADER
     
     char input[1024];
     char cmd[1024];
     char cwd[1024];
     int pos;
     char hostname[1024];
-    char *VERSION = "0.2.4-beta.1";
+    
     gethostname(hostname, sizeof(hostname));
-    char *USER = getenv("USER");
-    int mode = 0777;
     char *config = "config/kcsh.json";
     
-    //int disp = 0;
-
     // MAIN LOOP
     while (1) {
         // READ CONFIGS & DETERMINING FILE SIZE
-        FILE *configFile = fopen(config,"r");
-        fseek(configFile, 0, SEEK_END);
-        long fileSize = ftell(configFile);
-        fseek(configFile, 0, SEEK_SET);
-        char *buffer = malloc(fileSize + 1);
-        size_t bytesRead = fread(buffer, 1, fileSize, configFile);
-        buffer[bytesRead] = '\0';
-        fclose(configFile);
-        
-        // SETTING CONFIGS
-        char *ps1 = strstr(buffer, "\"ps1\"") + 8;
-        for (int i = 0; i < sizeof(ps1); i++) {
-            if (ps1[i] == '"') {
-                ps1[i] = '\0';
-            }
-        }
-        
-        char *configChar = strstr(buffer, "\"disp\"") + 8;
-        int disp = *configChar - '0';
+        ConfigInfo confInfo = main_conf();
+        Initialisation configs = init_conf(confInfo.buffer);
         
         getcwd(cwd, sizeof(cwd));
         
         // GET USER INPUT
-        switch (disp) {
+        switch (configs.disp) {
             case 0:
-                printf("\n%s ",ps1);
+                printf("\n%s ",configs.ps1);
                 break;
             case 1:
                 if (cwd != NULL) {
-                    printf("\n%s@%s:%s %s ",USER,hostname,cwd,ps1);
+                    printf("\n%s@%s:%s %s ",getenv("USER"),hostname,cwd,configs.ps1);
                 }
                 else {
-                    printf("\n%s@%s:~ %s ",USER,hostname,ps1);
+                    printf("\n%s@%s:~ %s ",getenv("USER"),hostname,configs.ps1);
                 }
                 break;
         }
@@ -96,83 +76,39 @@ int main() {
         // CMD PROCESSING
         if (strcmp(cmd, "help") == 0) {
             // HELP: Print list of commands
-            printf("SDD kcsh, version %s",VERSION);
-            printf("\nShell commands are defined internally. Type 'help' to see this list.");
-            printf("\ncd [dir]");
-            printf("\npwd");
-            printf("\nrm [dir]");
-            printf("\ntouch [dir]");
-            printf("\nrd [dir]");
-            printf("\nmkdir [dir]");
-            printf("\nwhoami");
-            printf("\necho [args]");
-            printf("\nconf [args] [setting] [val]");
-            printf("\nexit");
+            help();
         }
         else if (strcmp(cmd, "echo") == 0) {
             // ECHO: Print the rest of the input
-            printf("%s", args);
+            echo(args);
         }
         else if (strcmp(cmd, "pwd") == 0) {
             // PWD: Print working directory
-            printf("%s", cwd);
+            pwd(cwd);
         }
         else if (strcmp(cmd, "cd") == 0) {
             // CD: Change directory
-            if (chdir(args) != 0) {
-                printf("cd: no such file or directory: %s",args);
-            }
-            else {
-                chdir(args);
-            }
+            cd(args);
         }
         else if (strcmp(cmd, "rm") == 0) {
             // RM: Remove file
-            if (remove(args) != 0) {
-                printf("rm: no such file or directory: %s",args);
-            }
-            else {
-                remove(args);
-            }
+            rm(args);
         }
         else if (strcmp(cmd, "mkdir") == 0) {
             // MKDIR: Make directory
-            if (mkdir(args,mode) != 0) {
-                printf("mkdir: no such file or directory: %s",args);
-            }
-            else {
-                mkdir(args,mode);
-            }
+            c_mkdir(args);
         }
         else if (strcmp(cmd, "touch") == 0) {
             // TOUCH: Make file
-            FILE *ftmk = fopen(args, "w");
-            
-            if (ftmk != 0) {
-                fclose(ftmk);
-            }
-            else {
-                printf("touch: no such file or directory: %s",args);
-            }
+            touch(args);
         }
         else if (strcmp(cmd, "rd") == 0) {
             // RD: Read and display
-            FILE *ftpr = fopen(args, "r");
-            
-            char ch;
-            if (ftpr != 0) {
-                while ((ch = fgetc(ftpr)) != EOF) {
-                    printf("%c",ch);
-                }
-                fclose(ftpr);
-            }
-            else {
-                printf("rd: no such file or directory: %s",args);
-            }
+            rd(args);
         }
         else if (strcmp(cmd, "whoami") == 0) {
             // WHOAMI: Print current user
-            printf("%s", getenv("USER"));
+            whoami();
         }
         else if (strcmp(cmd, "conf") == 0) {
             // CONF: Edit configurations
@@ -197,19 +133,7 @@ int main() {
                 // LOOK FOR SETTINGS
                 if (strcmp(setting,"disp") == 0) {
                     if (*setVal == '0' || *setVal == '1') {
-                        configFile = fopen(config,"r+");
-                        bytesRead = fread(buffer, 1, fileSize, configFile);
-                        buffer[bytesRead] = '\0';
-                        
-                        configChar = strstr(buffer, "\"disp\"") + 8;
-                        char *configPtr = strchr(buffer,configChar[0]);
-                        fseek(configFile,configPtr - buffer,SEEK_SET);
-                        if (fputc(*setVal,configFile) != EOF) {
-                            fclose(configFile);
-                        }
-                        else {
-                            printf("conf: failed to set configuration: %c",*setVal);
-                        }
+                        set_disp(*setVal,confInfo.buffer,configs.configChar,confInfo.fileSize,confInfo.bytesRead);
                     }
                     else {
                         printf("conf: value for 'disp' must be 0 or 1: %c",*setVal);
@@ -217,7 +141,7 @@ int main() {
                 }
                 else if (strcmp(setting,"ps1") == 0) {
                     if (strlen(setVal) < 8) {
-                        set_ps1(config, "ps1", setVal, disp);
+                        set_ps1("ps1", setVal, configs.disp);
                     }
                     else {
                         printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
@@ -229,10 +153,10 @@ int main() {
             }
             else if (strcmp(args,"prt") == 0) {
                 if (strcmp(setting,"disp") == 0) {
-                    printf("%d",disp);
+                    printf("%d",configs.disp);
                 }
                 else if (strcmp(setting,"ps1") == 0) {
-                    printf("%s",ps1);
+                    printf("%s",configs.ps1);
                 }
                 else
                 {
