@@ -36,7 +36,7 @@ Initialisation init_conf(const char *buffer) {
     
     // SETTING CONFIGS
     result.ps1 = strstr(buffer, "\"ps1\"") + 8;
-    for (int i = 0; i < sizeof(result.ps1); i++) {
+    for (int i = 0; i < (int)sizeof(result.ps1); i++) {
         if (result.ps1[i] == '"') {
             result.ps1[i] = '\0';
         }
@@ -48,7 +48,7 @@ Initialisation init_conf(const char *buffer) {
     return result;
 }
 
-void set_ps1(const char *key, const char *value, const char disp) {
+void set_ps1(const char *value, const char disp) {
     // RECONSTRUCT NEW JSON STRING
     FILE *conf = fopen(file, "w");
     if (!conf) {
