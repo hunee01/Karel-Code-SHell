@@ -5,6 +5,9 @@
 #include <limits.h>
 #include <sys/stat.h>
 
+#include "config/set_config.h" // CALL CONFIG HEADER
+#include "src/command.h" // CALL COMMAND HEADER
+
 int main() {
     #ifdef _WIN32
         printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
@@ -16,9 +19,6 @@ int main() {
         printf("Bark!\n");
     #endif
     
-    #include "config/set_config.h" // CALL CONFIG HEADER
-    #include "src/command.h" // CALL COMMAND HEADER
-    
     char input[1024];
     char cmd[1024];
     char cwd[1024];
@@ -26,13 +26,14 @@ int main() {
     char hostname[1024];
     
     gethostname(hostname, sizeof(hostname));
-    char *config = "config/kcsh.json";
+    //char *config = "config/kcsh.json";       <-- KEEP ME UFN!
     
     // MAIN LOOP
     while (1) {
         // READ CONFIGS & DETERMINING FILE SIZE
         ConfigInfo confInfo = main_conf();
         Initialisation configs = init_conf(confInfo.buffer);
+        command_init(); // INITIALISE COMMANDS
         
         getcwd(cwd, sizeof(cwd));
         
@@ -42,7 +43,7 @@ int main() {
                 printf("\n%s ",configs.ps1);
                 break;
             case 1:
-                if (cwd != NULL) {
+                if (cwd[0] != '\0') {
                     printf("\n%s@%s:%s %s ",getenv("USER"),hostname,cwd,configs.ps1);
                 }
                 else {
@@ -113,7 +114,7 @@ int main() {
         else if (strcmp(cmd, "conf") == 0) {
             // CONF: Edit configurations
             char setting[64] = {0};
-            for (int i = 0; i < strlen(args); i++) {
+            for (int i = 0; i < (int)strlen(args); i++) {
                 if (args[i] == ' ') {
                     strncpy(setting, args + i + 1, sizeof(setting) - 1);
                     setting[sizeof(setting) - 1] = '\0';
@@ -122,7 +123,7 @@ int main() {
             }
             if (strcmp(args,"set") == 0) {
                 char setVal[64] = {0};
-                for (int i = 0; i < strlen(setting); i++) {
+                for (int i = 0; i < (int)strlen(setting); i++) {
                     if (setting[i] == ' ') {
                         strncpy(setVal, setting + i + 1, sizeof(setVal) - 1);
                         setVal[sizeof(setVal) - 1] = '\0';
@@ -141,7 +142,7 @@ int main() {
                 }
                 else if (strcmp(setting,"ps1") == 0) {
                     if (strlen(setVal) < 8) {
-                        set_ps1("ps1", setVal, configs.disp);
+                        set_ps1(setVal, configs.disp);
                     }
                     else {
                         printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
