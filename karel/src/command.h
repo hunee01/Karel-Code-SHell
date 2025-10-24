@@ -5,8 +5,6 @@
 int mode = 0777;
 
 const char *varNames[2];
-varNames[0] = "$VERSION";
-varNames[1] = "$USER";
 
 typedef struct {
     char *USER;
@@ -14,8 +12,13 @@ typedef struct {
 } EnvVars;
 EnvVars envVars;
 
-envVars.USER = getenv("USER");
-envVars.VERSION = "v0.3-beta";
+void command_init() {
+    varNames[0] = "$VERSION";
+    varNames[1] = "$USER";
+    
+    envVars.USER = getenv("USER");
+    envVars.VERSION = "v0.3-beta";
+}
 
 void help() {
     // HELP: Prints list of commands
