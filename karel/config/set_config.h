@@ -60,12 +60,26 @@ void set_ps1(const char *value, const char disp) {
     fclose(conf);
 }
 
-void set_disp(int setVal,char *buffer,const char *configChar,const long fileSize,size_t bytesRead) {
+void set_disp(int setVal,char *buffer,char *configChar,const long fileSize,size_t bytesRead) {
     FILE *conf = fopen(file,"r+");
+    if (!conf) {
+        perror("open");
+        return;
+    }
+    
     bytesRead = fread(buffer, 1, fileSize, conf);
     buffer[bytesRead] = '\0';
     
-    configChar = strstr(buffer, "\"disp\"") + 8;
+    char *littleBuffer = strstr(buffer,"\"disp\"");
+    int charPtr;
+    for (int i = 0; i < (int)strlen(littleBuffer) - 1; i++) {
+        if (littleBuffer[i + 7] != ' ' || littleBuffer[i + 7] != '\n') {
+            charPtr = (i + 8) + ((int)strlen(buffer) - (int)strlen(littleBuffer));
+            break;
+        }
+    }
+    
+    configChar = buffer + charPtr;
     char *configPtr = strchr(buffer,configChar[0]);
     fseek(conf,configPtr - buffer,SEEK_SET);
     if (fputc(setVal,conf) != EOF) {
