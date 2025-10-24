@@ -17,7 +17,7 @@ void command_init() {
     varNames[1] = "$USER";
     
     envVars.USER = getenv("USER");
-    envVars.VERSION = "v0.3-beta";
+    envVars.VERSION = "v0.3.1-beta";
 }
 
 void help() {
