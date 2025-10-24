@@ -11,7 +11,7 @@ This is a beginner project, and I'll be glad to increase my skills through impro
 <sub>A 'mens et manus' project</sub><br/>
 Thanks to [Polecat and his 'feesh'](https://github.com/polecatttt/feesh) for help and inspiration!
 
-![separator](IGNOREME/karel_404.png)
+![Image Source: CodeHS](IGNOREME/karel_404.png)
 
 ## Installation
 ### Requirements
