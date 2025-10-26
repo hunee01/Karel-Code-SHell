@@ -114,7 +114,7 @@ int main() {
                     args[i] = '\0';
                 }
             }
-            if (strcmp(args,"-r") == 0) {
+            if (strcmp(args,"-r") == 0 || strcmp(args,"--recursive") == 0) {
                 rm("-r",ftdel);
             }
             else {
@@ -147,7 +147,7 @@ int main() {
                     args[i] = '\0';
                 }
             }
-            if (strcmp(args,"-s") == 0) {
+            if (strcmp(args,"-s") == 0 || strcmp(args,"--set") == 0) {
                 char setVal[64] = {0};
                 for (int i = 0; i < (int)strlen(setting); i++) {
                     if (setting[i] == ' ') {
@@ -178,7 +178,7 @@ int main() {
                     printf("conf: setting does not exist: %s\n",setting);
                 }
             }
-            else if (strcmp(args,"-p") == 0) {
+            else if (strcmp(args,"-p") == 0 || strcmp(args,"--print") == 0) {
                 if (strcmp(setting,"disp") == 0) {
                     printf("%d\n",configs.disp);
                 }
