@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 int mode = 0777;
 
@@ -89,13 +90,55 @@ void cd(const char *dir) {
     }
 }
 
-void rm(const char *file) {
+void rm(const char *delMode,const char *file) {
     // RM: Remove file
-    if (remove(file) != 0) {
+    struct stat pathStat;
+    if (stat(file, &pathStat) != 0) {
         perror("rm");
+        return;
+    }
+
+    if (delMode != NULL && strcmp(delMode,"-r") == 0) {
+        if (S_ISDIR(pathStat.st_mode)) { //RECURSIVE DIR DELETION
+            DIR *dir = opendir(file);
+            if (dir == NULL) {
+                perror("rm");
+                return;
+            }
+
+            struct dirent *entry;
+            char path[PATH_MAX];
+
+            while ((entry = readdir(dir)) != NULL) {
+                if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+                    continue;
+                }
+                snprintf(path, sizeof(path), "%s/%s", file, entry->d_name);
+
+                rm("-r", path);
+            }
+
+            closedir(dir);
+
+            if (rmdir(file) != 0) {
+                perror("rm");
+            }
+        }
+        else { //REMOVE IF FILE
+            if (remove(file) != 0) {
+                perror("rm");
+            }
+        }
     }
     else {
-        remove(file);
+        if (S_ISDIR(pathStat.st_mode)) {
+            printf("rm: cannot remove '%s': directory\n", file);
+            return;
+        }
+
+        if (remove(file) != 0) {
+            perror("rm");
+        }
     }
 }
 
@@ -103,9 +146,6 @@ void c_mkdir(const char *dir) {
     // MKDIR: Make directory
     if (mkdir(dir,mode) != 0) {
         perror("mkdir");
-    }
-    else {
-        mkdir(dir,mode);
     }
 }
 
@@ -130,6 +170,7 @@ void rd(const char *file) {
         while ((ch = fgetc(ftpr)) != EOF) {
             printf("%c",ch);
         }
+        printf("%c",'\n');
         fclose(ftpr);
     }
     else {
