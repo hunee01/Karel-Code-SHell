@@ -106,7 +106,20 @@ int main() {
         }
         else if (strcmp(cmd, "rm") == 0) {
             // RM: Remove file
-            rm(args);
+            char ftdel[64] = {0};
+            for (int i = 0; i < (int)strlen(args); i++) {
+                if (args[i] == ' ') {
+                    strncpy(ftdel, args + i + 1, sizeof(ftdel) - 1);
+                    ftdel[sizeof(ftdel) - 1] = '\0';
+                    args[i] = '\0';
+                }
+            }
+            if (strcmp(args,"-r") == 0) {
+                rm("-r",ftdel);
+            }
+            else {
+                rm(NULL,args);
+            }
         }
         else if (strcmp(cmd, "mkdir") == 0) {
             // MKDIR: Make directory
