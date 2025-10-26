@@ -46,7 +46,7 @@ $ ./kcsh
 help - Shows a list of commands
 cd [dir] - Goes to the specified directory
 pwd - Prints the current working directory
-rm [location] - Deletes the specified file or empty directory
+rm [args] [location] - Deletes the specified file or empty directory
 touch [location] - Creates or updates file at specified directory
 rd [location] - Reads specified file
 mkdir [dir] - Creates specified directory
