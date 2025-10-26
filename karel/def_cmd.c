@@ -35,7 +35,7 @@ void help() {
     printf("\nShell commands are defined internally. Type 'help' to see this list.");
     printf("\ncd [dir]");
     printf("\npwd");
-    printf("\nrm [dir]");
+    printf("\nrm [args] [dir]");
     printf("\ntouch [dir]");
     printf("\nrd [dir]");
     printf("\nmkdir [dir]");
