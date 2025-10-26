@@ -52,5 +52,5 @@ rd [location] - Reads specified file
 mkdir [dir] - Creates specified directory
 whoami - Prints the current user
 echo [args] - Prints the specified arguments
-conf [set / prt] [setting] [val (if 'set')] - Used to view or edit values of settings in 'kcsh.json'
+conf [-s -p] [setting] [val (if '-s')] - Used to view or edit values of settings in 'kcsh.json'
 ```
