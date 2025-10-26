@@ -24,9 +24,7 @@ Thanks to [Polecat and his 'feesh'](https://github.com/polecatttt/feesh) for hel
 ### Build
 ```console
 $ cd karel
-$ gcc -o kcsh main.c # if using gcc
-$ tcc main.c -o kcsh # if using tcc
-$ clang main.c -o kcsh # if using clang
+$ gcc main.c def_cmd.c -o kcsh # replace 'gcc' with 'clang' or 'tcc' depending on your compiler
 ```
 > From the root folder of the downloaded release.
 
