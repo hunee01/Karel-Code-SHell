@@ -24,7 +24,7 @@ void command_init() {
     varNames[2] = "$HOME";
     
     envVars.USER = getenv("USER");
-    envVars.VERSION = "v0.3.3-beta";
+    envVars.VERSION = "v0.3.3-beta.1";
     envVars.HOME = getenv("HOME");
 }
 
