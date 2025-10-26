@@ -10,9 +10,9 @@
 
 int main() {
     #ifdef _WIN32
-        printf("WARNING: Incompatible OS. This program is not compatible with Windows 32-bit.\n");
+        printf("Snarl... Incompatible OS\n");
     #elif _WIN64
-        printf("WARNING: Incompatible OS. This program is not compatible with Windows 64-bit.\n");
+        printf("Snarl... Incompatible OS\n");
     #elif __linux__
         printf("Bark!\n");
     #elif __APPLE__
@@ -26,28 +26,32 @@ int main() {
     char hostname[1024];
     
     gethostname(hostname, sizeof(hostname));
-    //char *config = "config/kcsh.json";       <-- KEEP ME UFN!
     
     // MAIN LOOP
     while (1) {
         // READ CONFIGS & DETERMINING FILE SIZE
+
+        //printf("[DEBUG] Entering loop...\n");
         ConfigInfo confInfo = main_conf();
+        //printf("[DEBUG] main_conf() OK\n");
         Initialisation configs = init_conf(confInfo.buffer);
+        //printf("[DEBUG] init_conf() OK\n");
         command_init(); // INITIALISE COMMANDS
+        //printf("[DEBUG] command_init() OK\n");
         
         getcwd(cwd, sizeof(cwd));
         
         // GET USER INPUT
         switch (configs.disp) {
             case 0:
-                printf("\n%s ",configs.ps1);
+                printf("%s ",configs.ps1);
                 break;
             case 1:
                 if (cwd[0] != '\0') {
-                    printf("\n%s@%s:%s %s ",getenv("USER"),hostname,cwd,configs.ps1);
+                    printf("%s@%s:%s %s ",getenv("USER"),hostname,cwd,configs.ps1);
                 }
                 else {
-                    printf("\n%s@%s:~ %s ",getenv("USER"),hostname,configs.ps1);
+                    printf("%s@%s:~ %s ",getenv("USER"),hostname,configs.ps1);
                 }
                 break;
         }
@@ -68,10 +72,19 @@ int main() {
             i++;
         }
         cmd[i] = '\0';
-        pos = i + 1;
-        char *args = input + pos;
-        while (*args == ' ') {
-            args++;
+        char *args = NULL;
+        if (input[i] != '\0') {
+            args = input + i;
+            while (*args == ' ') {
+                args++;
+            }
+            if (*args == '\0') {
+                args = NULL; // NO ARGS
+            }
+        }
+        
+        if (args == NULL || args[0] == '\0') {
+            args = "";
         }
 
         // CMD PROCESSING
@@ -88,7 +101,7 @@ int main() {
             pwd(cwd);
         }
         else if (strcmp(cmd, "cd") == 0) {
-            // CD: Change directory
+        // CD: Changes directory
             cd(args);
         }
         else if (strcmp(cmd, "rm") == 0) {
@@ -121,7 +134,7 @@ int main() {
                     args[i] = '\0';
                 }
             }
-            if (strcmp(args,"set") == 0) {
+            if (strcmp(args,"-s") == 0) {
                 char setVal[64] = {0};
                 for (int i = 0; i < (int)strlen(setting); i++) {
                     if (setting[i] == ' ') {
@@ -137,7 +150,7 @@ int main() {
                         set_disp(*setVal,confInfo.buffer,configs.configChar,confInfo.fileSize,confInfo.bytesRead);
                     }
                     else {
-                        printf("conf: value for 'disp' must be 0 or 1: %c",*setVal);
+                        printf("conf: value for 'disp' must be 0 or 1: %c\n",*setVal);
                     }
                 }
                 else if (strcmp(setting,"ps1") == 0) {
@@ -145,37 +158,43 @@ int main() {
                         set_ps1(setVal, configs.disp);
                     }
                     else {
-                        printf("conf: value for 'ps1' must be less than 8 characters: %s",setVal);
+                        printf("conf: value for 'ps1' must be less than 8 characters: %s\n",setVal);
                     }
                 }
                 else {
-                    printf("conf: setting does not exist: %s",setting);
+                    printf("conf: setting does not exist: %s\n",setting);
                 }
             }
-            else if (strcmp(args,"prt") == 0) {
+            else if (strcmp(args,"-p") == 0) {
                 if (strcmp(setting,"disp") == 0) {
-                    printf("%d",configs.disp);
+                    printf("%d\n",configs.disp);
                 }
                 else if (strcmp(setting,"ps1") == 0) {
-                    printf("%s",configs.ps1);
+                    printf("%s\n",configs.ps1);
                 }
                 else
                 {
-                    printf("conf: invalid argument: %s",setting);
+                    printf("conf: invalid argument: %s\n",setting);
                 }
             }
             else {
-                printf("conf: invalid argument: %s",args);
+                printf("conf: invalid argument: %s\n",args);
             }
         }
         else if (strcmp(cmd, "exit") == 0) {
             // EXIT: Exit the loop
             break;
         }
+        else if (strcmp(cmd, "") == 0) {
+            printf("");
+        }
         else {
             // FALLBACK: Print unknown command
-            printf("kcsh: %s: command not found",cmd);
+            printf("kcsh: %s: command not found\n",cmd);
         }
+
+        free(confInfo.buffer);
+        free(configs.ps1);
     }
     return 0;
 }
