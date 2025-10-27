@@ -42,7 +42,7 @@ $ ./kcsh
 ### List of internally defined commands
 ```
 help - Shows a list of commands
-cd [dir] - Goes to the specified directory
+cd [dir] - Goes to the specified directory (rather unstable)
 pwd - Prints the current working directory
 rm [-r --recursive] [location (dir if '-r'] - Deletes the specified file or empty directory
 touch [location] - Creates or updates file at specified directory
